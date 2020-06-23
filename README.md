@@ -27,3 +27,24 @@ Learn to drive, play games.
 
 # Lecture 2: Visualization and Matplotlib
 
+twinx, twiny
+
+``
+ax1 = plt.gca()
+line1, = ax1.plot(years, phds)
+ax2 = ax1.twinx()
+line2, = ax2.plot(years, revenue, c='r')
+ax1.set_ylabel("Math PhDs awarded")
+ax2.set_ylabel("revenue by arcades")
+ax2.legend((line1, line2),
+           ("math PhDs awarded", "revenue by arcades"))
+``           
+
+
+
+
+
+
+
+
+
