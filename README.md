@@ -243,3 +243,14 @@ res = cross_validate(KNeighborsClassifier(), X, y, return_train_score=True,
                      scoring=["accuracy", "roc_auc"])
 res_df = pd.DataFrame(res)
 ````
+
+gives you more parameters wr cross_validate_score
+
+````
+fit_time    score_time    test_accuracy    test_roc_auc    train_accuracy    train_roc_auc
+0.000839    0.010204    0.965217        0.996609        0.980176        0.997654
+0.000870    0.014424    0.956522        0.983689        0.975771        0.998650
+0.000603    0.009298    0.982301        0.999329        0.971491        0.996977
+0.000698    0.006670    0.955752        0.984071        0.978070        0.997820
+0.000611    0.006559    0.964602        0.994634        0.978070        0.998026
+````
