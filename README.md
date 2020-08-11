@@ -254,3 +254,64 @@ fit_time    score_time    test_accuracy    test_roc_auc    train_accuracy    tra
 0.000698    0.006670    0.955752        0.984071        0.978070        0.997820
 0.000611    0.006559    0.964602        0.994634        0.978070        0.998026
 ````
+
+# Lecture 4: Preprocessing and Feature Transformations
+
+## Scaling
+
+- StandartScaler (mean and standart deviation)
+- MinMaxScaler (for features that have clear boundaries) 
+- RobustScaler (median, good if you have outliers in the data)
+- Normalizer (each row devided by euqleadian distance, most used in NLP)
+
+### Sparse data
+only scale do not center
+
+###  Standard Scaler Example
+````
+from sklearn.linear_model import Ridge
+# Back to King Country house prices
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, random_state=0)
+scaler = StandardScaler()
+scaler.fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+ridge = Ridge().fit(X_train_scaled, y_train)
+X_test_scaled = scaler.transform(X_test)
+ridge.score(X_test_scaled, y_test)
+````
+- Never call fit on test dataset
+- KNN is sensitive to scaling
+
+## Pipelines
+
+````
+from sklearn.linear_model import Ridge
+X, y = df, target
+scaler = StandardScaler()
+scaler.fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+ridge = Ridge().fit(X_train_scaled, y_train)
+X_test_scaled = scaler.transform(X_test)
+ridge.score(X_test_scaled, y_test)
+0.684
+
+from sklearn.pipeline import make_pipeline
+pipe = make_pipeline(StandardScaler(), Ridge())
+pipe.fit(X_train, y_train)
+pipe.score(X_test, y_test)
+0.684
+````
+
+- you can put the pipeline in cross-validation
+
+#### Pipeline and GridSearchCV
+````buildoutcfg
+from sklearn.model_selection import GridSearchCV
+knn_pipe = make_pipeline(StandardScaler(), KNeighborsRegressor())
+param_grid = {'kneighborsregressor__n_neighbors': range(1, 10)}
+grid = GridSearchCV(knn_pipe, param_grid, cv=10)
+grid.fit(X_train, y_train)
+print(grid.best_params_)
+print(grid.score(X_test, y_test))
+````
