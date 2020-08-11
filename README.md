@@ -1,6 +1,6 @@
 # ML_Uni_Col_2020
 
-Lets stat this exciting course.
+Lets start this exciting course.
 https://www.youtube.com/watch?v=d79mzijMAw0&list=PL_pVmAaAnxIRnSw6wiCpSvshFyCREZmlM
 Course materials at: https://www.cs.columbia.edu/~amueller/comsw4995s20/schedule/
 
@@ -82,9 +82,27 @@ plt.axis("off")
 
 # Lecture 3: Introduction to Supervised Learning
 
+- Nierest Neigbhours
 
+Threeforld Split for Hyper-Parameter
 
+````
+X_trainval, X_test, y_trainval, y_test = train_test_split(X, y)
+X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval)
+val_scores = []
+neighbors = np.arange(1, 15, 2)
+for i in neighbors:
+    knn = KNeighborsClassifier(n_neighbors=i)
+    knn.fit(X_train, y_train)
+    val_scores.append(knn.score(X_val, y_val))
+print(f"best validation score: {np.max(val_scores):.3}")
+best_n_neighbors = neighbors[np.argmax(val_scores)]
+print("best n_neighbors:", best_n_neighbors)
+knn = KNeighborsClassifier(n_neighbors=best_n_neighbors)
+knn.fit(X_trainval, y_trainval)
+print(f"test-set score: {knn.score(X_test, y_test):.3f}")
 
+````
 
 
 
