@@ -306,7 +306,7 @@ pipe.score(X_test, y_test)
 - you can put the pipeline in cross-validation
 
 #### Pipeline and GridSearchCV
-````buildoutcfg
+````
 from sklearn.model_selection import GridSearchCV
 knn_pipe = make_pipeline(StandardScaler(), KNeighborsRegressor())
 param_grid = {'kneighborsregressor__n_neighbors': range(1, 10)}
@@ -314,4 +314,91 @@ grid = GridSearchCV(knn_pipe, param_grid, cv=10)
 grid.fit(X_train, y_train)
 print(grid.best_params_)
 print(grid.score(X_test, y_test))
+````
+#### Going wild with Pipelines
+````
+from sklearn.datasets import load_diabetes
+diabetes = load_diabetes()
+X_train, X_test, y_train, y_test = train_test_split(
+    diabetes.data, diabetes.target, random_state=0)
+from sklearn.preprocessing import PolynomialFeatures
+pipe = make_pipeline(
+    StandardScaler(),
+    PolynomialFeatures(),
+    Ridge())
+param_grid = {'polynomialfeatures__degree': [1, 2, 3],
+              'ridge__alpha': [0.001, 0.01, 0.1, 1, 10, 100]}
+grid = GridSearchCV(pipe, param_grid=param_grid,
+                    n_jobs=-1, return_train_score=True)
+grid.fit(X_train, y_train)
+````
+
+#### Going wildest with Pipelines
+you can use grid in param grid and make algorithm to choose which regressor and which scaler works best
+````
+from sklearn.tree import DecisionTreeRegressor
+pipe = Pipeline([('scaler', StandardScaler()),
+                 ('regressor', Ridge())])
+# check out searchgrid for more convenience
+param_grid = [{'regressor': [DecisionTreeRegressor()],
+               'regressor__max_depth': [2, 3, 4],
+               'scaler': ['passthrough']},
+              {'regressor': [Ridge()],
+               'regressor__alpha': [0.1, 1],
+               'scaler': [StandardScaler(), MinMaxScaler(),
+                          'passthrough']}
+             ]
+grid = GridSearchCV(pipe, param_grid)
+grid.fit(X_train, y_train)
+grid.score(X_test, y_test)
+````
+
+## Categorical Variables
+
+#### OneHotEncoder + ColumnTransformer
+you can use sk leanr to make one hot encoding of the columns which are categorical
+basicly assuming that everything which is string time in columns are categorical and 
+the others like integers are continious variables
+That is realised in a sort of pipeline
+- Column Transformer
+````
+categorical = df.dtypes == object
+preprocess = make_column_transformer(
+    (StandardScaler(), ~categorical),
+    (OneHotEncoder(), categorical))
+model = make_pipeline(preprocess, LogisticRegression())
+````
+
+#### Dummy variables and colinearity
+- One-hot is redundant (last one is 1 – sum of others)
+- Can introduce co-linearity
+- Can drop one
+- Choice which one matters for penalized models
+- Keeping all can make the model more interpretable
+
+````
+X = data.frame.drop(['date', 'price', 'zipcode'], axis=1)
+scores = cross_val_score(Ridge(), X, target)
+np.mean(scores)
+
+0.69
+
+from sklearn.compose import make_column_transformer
+from sklearn.preprocessing import OneHotEncoder
+X = data.frame.drop(['date', 'price'], axis=1)
+ct = make_column_transformer((OneHotEncoder(), ['zipcode']), remainder='passthrough')
+pipe_ohe = make_pipeline(ct, Ridge())
+scores = cross_val_score(pipe_ohe, X, target)
+np.mean(scores)
+
+0.52
+
+from category_encoders import TargetEncoder
+X = data.frame.drop(['date', 'price'], axis=1)
+pipe_target = make_pipeline(TargetEncoder(cols='zipcode'), Ridge())
+scores = cross_val_score(pipe_target, X, target)
+np.mean(scores)
+
+0.78
+
 ````
